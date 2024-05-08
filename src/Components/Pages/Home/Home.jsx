@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import dummyImage from "../../../Assets/Images/download.jpeg";
+import wishList from "../../../Assets/Images/heart.jpg";
+import wishedList from "../../../Assets/Images/wishedList.jpg";
 import "./Home.css";
 import { getApi } from "../../Services/Axios";
 import Loader from "../../../Utils/Loder/Loder";
@@ -12,7 +14,7 @@ const Home = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [isHeartSelected, setIsHeartSelected] = useState(false);
   const [pageSize] = useState(10);
   const [loading, setLoading] = useState(true);
 
@@ -77,60 +79,78 @@ const Home = () => {
   const handleOnclick = () => {
     Navigate("/cart", { state: { cart } });
   };
+
+  const changeImage = () => {
+    setIsHeartSelected(!isHeartSelected);
+  };
+
   console.log("cart", cart);
   return (
-    <div>
-      <h2>Product Listing</h2>
-      <div className="d-flex justify-content-end p-2">
-        <button
-          onClick={() => {
-            handleOnclick();
-          }}
-        >
-          Go to cart
-        </button>
-      </div>
-      {loading ? (
-        <Loader loading={loading} />
-      ) : (
-        <div className="product-grid">
-          {products.map((product) => (
-            <div key={product.ProductCode} className="product-item">
-              <img
-                src={product.ProductImagePath || dummyImage}
-                alt={product.name}
-              />
-              <p>{product.name}</p>
-              {cart.some((item) => item.ProductCode === product.ProductCode) ? (
-                <div className="add-remove-btns d-flex justify-content-evenly">
-                  <button onClick={() => removeFromCart(product)}>-</button>
-                  <span>
-                    {
-                      cart.find(
-                        (item) => item.ProductCode === product.ProductCode
-                      ).quantity
-                    }
-                  </span>
-                  <button onClick={() => addToCart(product)}>+</button>
-                </div>
-              ) : (
-                <button onClick={() => addToCart(product)}>Add to Cart</button>
-              )}
-            </div>
-          ))}
+    <div className="container-fluid bg-gray">
+      <div className="container pt-3">
+        <h2>Product Listing</h2>
+        <div className="d-flex justify-content-end p-2">
+          <button
+            onClick={() => {
+              handleOnclick();
+            }}
+          >
+            Go to cart
+          </button>
         </div>
-      )}
-      <div className="pagination">
-        {currentPage > 1 && (
-          <div className="Pagination-btn" onClick={prevPage}>
-            Prev
+        {loading ? (
+          <Loader loading={loading} />
+        ) : (
+          <div className="product-grid">
+            {products.map((product) => (
+              <div key={product.ProductCode} className="product-item">
+                <img
+                  src={isHeartSelected ? wishedList : wishList}
+                  alt="heart"
+                  className="heart"
+                  onClick={() => changeImage()}
+                />
+                <img
+                  className="product-image"
+                  src={product.ProductImagePath || dummyImage}
+                  alt={product.name}
+                />
+                <p>{product.name}</p>
+                {cart.some(
+                  (item) => item.ProductCode === product.ProductCode
+                ) ? (
+                  <div className="add-remove-btns d-flex justify-content-evenly align-items-center mt-3 gap-3">
+                    <button onClick={() => removeFromCart(product)}>-</button>
+                    <span>
+                      {
+                        cart.find(
+                          (item) => item.ProductCode === product.ProductCode
+                        ).quantity
+                      }
+                    </span>
+                    <button onClick={() => addToCart(product)}>+</button>
+                  </div>
+                ) : (
+                  <button onClick={() => addToCart(product)} className="mt-3">
+                    Add to Cart
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
         )}
-        {products.length === pageSize && (
-          <div className="Pagination-btn" onClick={nextPage}>
-            Next
-          </div>
-        )}
+        <div className="pagination">
+          {currentPage > 1 && (
+            <div className="Pagination-btn" onClick={prevPage}>
+              Prev
+            </div>
+          )}
+          {products.length === pageSize && (
+            <div className="Pagination-btn" onClick={nextPage}>
+              Next
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
